@@ -3019,16 +3019,16 @@ class ProductCore extends ObjectModel
 
         $result = self::$_pricesLevel2[$cache_id_2][(int)$id_product_attribute];
 
-        if (!$specific_price || $specific_price['price'] < 0) {
-            $price = (float)$result['price'];
+	// Apply specific price as reduc
+        if ($use_reduc && $specific_price && $specific_price['price'] >= 0) {
+            if ($id_currency && $id_currency != $specific_price['id_currency']) {
+                $specific_price['price'] = Tools::convertPrice((float)$specific_price['price'], $id_currency);
+            }
+            $price = $specific_price['price'];
         } else {
-            $price = (float)$specific_price['price'];
-        }
-        // convert only if the specific price is in the default currency (id_currency = 0)
-        if (!$specific_price || !($specific_price['price'] >= 0 && $specific_price['id_currency'])) {
-            $price = Tools::convertPrice($price, $id_currency);
-            if (isset($specific_price['price'])) {
-                $specific_price['price'] = $price;
+            $price = (float)$result['price'];
+            if ($id_currency) {
+                $price = Tools::convertPrice($price, $id_currency);
             }
         }
 
